@@ -1,7 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"github.com/c4miloarriagada/keys-be/internal/app"
+)
 
 func main() {
-	fmt.Println("hello world")
+	app.Start()
 }
