@@ -18,7 +18,6 @@ func InitDB() *sql.DB {
 		fmt.Println("Error creating temporary directory:", err)
 		os.Exit(1)
 	}
-	defer os.RemoveAll(dir)
 
 	dbPath := filepath.Join(dir, dbName)
 
@@ -29,7 +28,7 @@ func InitDB() *sql.DB {
 		fmt.Println("Error creating connector:", err)
 		os.Exit(1)
 	}
-	defer connector.Close()
+
 	db := sql.OpenDB(connector)
 	return db
 }
