@@ -2,9 +2,7 @@ package repository
 
 import (
 	"database/sql"
-	"encoding/json"
 	"errors"
-	"fmt"
 
 	"github.com/c4miloarriagada/keys-be/internal/domain"
 )
@@ -39,7 +37,6 @@ func (r *tursoUserRepository) Save(user *domain.User) error {
 func (r *tursoUserRepository) GetAll() ([]domain.User, error) {
 	rows, err := r.db.Query("SELECT id, name, email FROM users")
 
-	fmt.Println(json.MarshalIndent(rows, "", "  "))
 	if err != nil {
 		return nil, err
 	}

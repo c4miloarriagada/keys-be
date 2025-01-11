@@ -23,7 +23,7 @@ type Handler struct {
 	userHandler handler.UserHandler
 }
 
-// momentario
+// momentanio
 func loadDependencies() Handler {
 	db := pkg.InitDB()
 	tursoRepo := repository.NewTursoUserRepository(db)
