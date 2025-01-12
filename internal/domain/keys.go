@@ -14,7 +14,7 @@ type Key struct {
 
 type KeysRepository interface {
 	GetByID(id int64) (*Key, error)
-	// Save(keys *Keys) error
-	// GetAll() ([]Keys, error)
+	Save(keys *Key) error
+	// GetAll() ([]Key, error)
 	// DeleteByID(id int64) error
 }

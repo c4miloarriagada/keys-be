@@ -2,21 +2,23 @@ package pkg
 
 import (
 	"database/sql"
-	"fmt"
+	"errors"
+	"log"
 	"os"
 	"path/filepath"
 
 	"github.com/tursodatabase/go-libsql"
 )
 
-func InitDB() *sql.DB {
+func InitDB() (*sql.DB, error) {
 	dbName := os.Getenv("TURSO_DB_NAME")
 	primaryUrl := os.Getenv("TURSO_DATABASE_URL")
 	authToken := os.Getenv("TURSO_AUTH_TOKEN")
 	dir, err := os.MkdirTemp("", "libsql-*")
 	if err != nil {
-		fmt.Println("Error creating temporary directory:", err)
+		log.Fatal("Error creating temporary directory:", err)
 		os.Exit(1)
+		return nil, errors.New("Error creating temporary directory")
 	}
 
 	dbPath := filepath.Join(dir, dbName)
@@ -25,16 +27,21 @@ func InitDB() *sql.DB {
 		libsql.WithAuthToken(authToken),
 	)
 	if err != nil {
-		fmt.Println("Error creating connector:", err)
-		os.Exit(1)
+		log.Fatal("Error creating connector:", err)
+		return nil, errors.New("Error creating connector")
 	}
 
 	db := sql.OpenDB(connector)
-	createTables(db)
-	return db
+	err = createTables(db)
+
+	if err != nil {
+		return nil, errors.New("Error creating tables")
+	}
+
+	return db, nil
 }
 
-func createTables(db *sql.DB) {
+func createTables(db *sql.DB) error {
 
 	_, err := db.Exec(`
 	CREATE TABLE IF NOT EXISTS users (
@@ -46,8 +53,8 @@ func createTables(db *sql.DB) {
 	);
 `)
 	if err != nil {
-		fmt.Println("Error creating users table:", err)
-		os.Exit(1)
+		log.Fatal("Error creating users table:", err)
+		return err
 	}
 
 	_, err = db.Exec(`
@@ -64,8 +71,9 @@ func createTables(db *sql.DB) {
 	);
 `)
 	if err != nil {
-		fmt.Println("Error creating keys table:", err)
-		os.Exit(1)
+		log.Fatal("Error creating keys table:", err)
+		return err
 	}
 
+	return nil
 }

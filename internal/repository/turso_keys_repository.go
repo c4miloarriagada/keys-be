@@ -28,3 +28,14 @@ func (r *tursoKeyRepository) GetByID(id int64) (*domain.Key, error) {
 
 	return &keys, nil
 }
+
+func (r *tursoKeyRepository) Save(keys *domain.Key) error {
+	_, err := r.db.Exec("INSERT INTO keys (name, description, pass, alias, created_at, valid_until) VALUES (?, ?, ?, ?, ?, ?)",
+		keys.Name, keys.Description, keys.Pass, keys.Alias)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
