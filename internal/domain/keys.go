@@ -12,7 +12,7 @@ type Key struct {
 	ValidUntil  *time.Time
 }
 
-type KeysRepository interface {
+type KeyRepository interface {
 	GetByID(id int64) (*Key, error)
 	Save(keys *Key) error
 	// GetAll() ([]Key, error)

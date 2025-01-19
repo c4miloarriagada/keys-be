@@ -22,6 +22,7 @@ func Start() error {
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
 	router.GET("/users", handler.userHandler.GetAllUsers)
+	router.POST("/save", handler.keyHandler.Save)
 	router.Run(":8080")
 
 	return nil
@@ -29,7 +30,7 @@ func Start() error {
 
 type Handler struct {
 	userHandler handler.UserHandler
-	// keyHandler  handler.KeyHandler
+	keyHandler  handler.KeyHandler
 }
 
 // momentanio
@@ -41,11 +42,16 @@ func loadDependencies() (Handler, error) {
 	}
 
 	userRepository := repository.NewTursoUserRepository(db)
-	// keysRepository := repository.NewTursoUserRepository(db)
+	keysRepository := repository.NewTursoKeysRepository(db)
+
 	userService := service.NewUserService(userRepository)
+	keysService := service.NewKeyService(keysRepository)
+
 	userHandler := handler.NewUserHandler(userService)
+	keysHandler := handler.NewKeyHandler(keysService)
+
 	return Handler{
 		userHandler: *userHandler,
-		// keyHandler:  handler.KeyHandler{},
+		keyHandler:  *keysHandler,
 	}, nil
 }

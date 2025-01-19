@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"errors"
+	"log"
 
 	"github.com/c4miloarriagada/keys-be/internal/domain"
 )
@@ -11,7 +12,7 @@ type tursoKeyRepository struct {
 	db *sql.DB
 }
 
-func NewTursoKeysRepository(db *sql.DB) domain.KeysRepository {
+func NewTursoKeysRepository(db *sql.DB) domain.KeyRepository {
 	return &tursoKeyRepository{db: db}
 }
 
@@ -23,7 +24,8 @@ func (r *tursoKeyRepository) GetByID(id int64) (*domain.Key, error) {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
-		return nil, err
+		log.Printf("failed to get the key: %v", err)
+		return nil, errors.New("failed to get the key")
 	}
 
 	return &keys, nil
@@ -34,7 +36,8 @@ func (r *tursoKeyRepository) Save(keys *domain.Key) error {
 		keys.Name, keys.Description, keys.Pass, keys.Alias)
 
 	if err != nil {
-		return err
+		log.Printf("failed to save the key: %v", err)
+		return errors.New("failed to save the key")
 	}
 
 	return nil
