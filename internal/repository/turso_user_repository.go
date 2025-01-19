@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"errors"
+	"log"
 
 	"github.com/c4miloarriagada/keys-be/internal/domain"
 )
@@ -23,7 +24,8 @@ func (r *tursoUserRepository) GetByID(id int) (*domain.User, error) {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
-		return nil, err
+		log.Printf("failed to scan user: %v", err)
+		return nil, errors.New("failed to scan user")
 	}
 
 	return &user, nil
@@ -31,7 +33,11 @@ func (r *tursoUserRepository) GetByID(id int) (*domain.User, error) {
 
 func (r *tursoUserRepository) Save(user *domain.User) error {
 	_, err := r.db.Exec("INSERT INTO users (name, email) VALUES (?, ?)", user.Name, user.Email)
-	return err
+	if err != nil {
+		log.Printf("failed to save user: %v", err)
+		return errors.New("failed to save user")
+	}
+	return nil
 }
 
 func (r *tursoUserRepository) GetAll() ([]domain.User, error) {
