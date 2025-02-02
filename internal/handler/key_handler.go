@@ -1,6 +1,9 @@
 package handler
 
 import (
+	"log"
+
+	domain_errors "github.com/c4miloarriagada/keys-be/internal/domain/errors"
 	"github.com/c4miloarriagada/keys-be/internal/service"
 	"github.com/gin-gonic/gin"
 )
@@ -16,13 +19,15 @@ func NewKeyHandler(service *service.KeyService) *KeyHandler {
 func (h *KeyHandler) Save(c *gin.Context) {
 	var keyDTO keyDTO
 	if err := c.BindJSON(&keyDTO); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		log.Print("Error binding json: ", err)
+		writeError(c, domain_errors.NewInternalServerError("internal_error", "error binding json"))
 		return
 	}
 
 	key := keyDTO.toDomain()
 	if err := h.KeyService.Save(&key); err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		log.Print("Error saving key: ", err)
+		writeError(c, err)
 		return
 	}
 

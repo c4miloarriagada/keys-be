@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/c4miloarriagada/keys-be/internal/domain"
+	domain_errors "github.com/c4miloarriagada/keys-be/internal/domain/errors"
 )
 
 type tursoKeyRepository struct {
@@ -22,10 +23,10 @@ func (r *tursoKeyRepository) GetByID(id int64) (*domain.Key, error) {
 	var keys domain.Key
 	if err := row.Scan(&keys.ID, &keys.Name, &keys.Description, &keys.Pass, &keys.Alias, &keys.CreatedAt, &keys.ValidUntil); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, nil
+			return nil, domain_errors.NewNotFoundError("key_not_found", "Key not found")
 		}
 		log.Printf("failed to get the key: %v", err)
-		return nil, errors.New("failed to get the key")
+		return nil, domain_errors.NewInternalServerError("failed to get the key", err.Error())
 	}
 
 	return &keys, nil
@@ -37,7 +38,7 @@ func (r *tursoKeyRepository) Save(keys *domain.Key) error {
 
 	if err != nil {
 		log.Printf("failed to save the key: %v", err)
-		return errors.New("failed to save the key")
+		return domain_errors.NewInternalServerError("failed to save the key", err.Error())
 	}
 
 	return nil

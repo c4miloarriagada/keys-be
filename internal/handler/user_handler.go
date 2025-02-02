@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/c4miloarriagada/keys-be/internal/domain"
+	domain_errors "github.com/c4miloarriagada/keys-be/internal/domain/errors"
 	"github.com/c4miloarriagada/keys-be/internal/service"
 	"github.com/gin-gonic/gin"
 )
@@ -20,18 +21,18 @@ func NewUserHandler(userService *service.UserService) *UserHandler {
 func (h *UserHandler) GetUserByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		writeError(c, domain_errors.NewValidationError("invalid_id", "invalid id"))
 		return
 	}
 
 	user, err := h.UserService.GetUserByID(id)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener el usuario"})
+		writeError(c, err)
 		return
 	}
 
 	if user == nil {
-		c.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
+		writeError(c, domain_errors.NewNotFoundError("user_not_found", "user not found"))
 		return
 	}
 
@@ -41,12 +42,12 @@ func (h *UserHandler) GetUserByID(c *gin.Context) {
 func (h *UserHandler) CreateUser(c *gin.Context) {
 	var user domain.User
 	if err := c.ShouldBindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		writeError(c, domain_errors.NewValidationError("invalid_body", "invalid body"))
 		return
 	}
 
 	if err := h.UserService.CreateUser(&user); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		writeError(c, domain_errors.NewInternalServerError("internal_error", "error creating user"))
 		return
 	}
 
@@ -56,7 +57,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 func (h *UserHandler) GetAllUsers(c *gin.Context) {
 	users, err := h.UserService.GetAllUsers()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		writeError(c, domain_errors.NewInternalServerError("internal_error", "error getting users"))
 		return
 	}
 
